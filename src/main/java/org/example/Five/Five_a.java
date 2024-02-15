@@ -3,7 +3,7 @@ package org.example.Five;
 import java.util.Arrays;
 import java.util.Random;
 
-class AntColony {
+class AntColony { // Representing an Ant Colony solving the Traveling Salesman Problem (TSP) with continuous updates
     private int[][] distanceMatrix;
     private int numAnts;
     private double[][] pheromoneMatrix;
@@ -15,6 +15,7 @@ class AntColony {
     private double alpha;
     private double beta;
 
+    // Constructor to initialize the AntColony with required parameters
     public AntColony(int[][] distanceMatrix, int numAnts, double evaporationRate, double alpha, double beta) {
         this.distanceMatrix = distanceMatrix;
         this.numAnts = numAnts;
@@ -26,7 +27,7 @@ class AntColony {
         this.probabilities = new double[numCities][numCities];
         initializePheromones();
     }
-
+    // Initializing pheromone levels on edges with a small initial value
     private void initializePheromones() {
         double initialPheromone = 1.0 / numCities;
         for (int i = 0; i < numCities; i++) {
@@ -38,6 +39,7 @@ class AntColony {
         }
     }
 
+    // Solving the TSP problem using ant colony optimization with continuous updates
     public void solve(int maxIterations) {
         bestTourLength = Integer.MAX_VALUE;
         bestTour = new int[numCities];
@@ -69,7 +71,7 @@ class AntColony {
             updatePheromones();
         }
     }
-
+    // Calculating probabilities for selecting the next city based on pheromone levels and distances
     private void calculateProbabilities(int city, boolean[] visited) {
         double total = 0.0;
         for (int i = 0; i < numCities; i++) {
@@ -86,7 +88,7 @@ class AntColony {
             probabilities[city][i] /= total;
         }
     }
-
+    // Selecting the next city based on calculated probabilities
     private int selectNextCity(int city) {
         double[] probabilities = this.probabilities[city];
         double r = Math.random();
@@ -99,7 +101,7 @@ class AntColony {
         }
         return -1;
     }
-
+    // Updating pheromone levels based on ant paths and evaporation
     private void updatePheromones() {
         // Evaporation
         for (int i = 0; i < numCities; i++) {
@@ -107,7 +109,7 @@ class AntColony {
                 pheromoneMatrix[i][j] *= (1.0 - evaporationRate);
             }
         }
-        // Add new pheromones
+        // Adding new pheromones
         for (int ant = 0; ant < numAnts; ant++) {
             for (int i = 0; i < numCities - 1; i++) {
                 int city1 = bestTour[i];
@@ -117,7 +119,7 @@ class AntColony {
             }
         }
     }
-
+    // Calculating the total length of a tour based on the distance matrix
     private int calculateTourLength(int[] tour) {
         int length = 0;
         for (int i = 0; i < tour.length - 1; i++) {
@@ -126,7 +128,7 @@ class AntColony {
         length += distanceMatrix[tour[tour.length - 1]][tour[0]]; // Return to the starting city
         return length;
     }
-
+    // Getters for the best tour length and the best tour path
     public int getBestTourLength() {
         return bestTourLength;
     }
@@ -159,3 +161,7 @@ public class Five_a {
         System.out.println("Best tour length: " + bestTourLength);
     }
 }
+
+
+//Output: Best tour[2,0,1,3]
+//Best tour length:80
