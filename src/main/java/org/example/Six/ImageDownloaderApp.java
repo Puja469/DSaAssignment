@@ -10,14 +10,19 @@ import java.nio.file.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+// Creating a class for the Image Downloader application, extending JFrame
 public class ImageDownloaderApp extends JFrame {
+    // Declaring GUI components
     private JTextField urlField = new JTextField("");
     private JButton addButton = new JButton("Add Download");
     private DefaultListModel<DownloadInfo> listModel = new DefaultListModel<>();
     private JList<DownloadInfo> downloadList = new JList<>(listModel);
     private ExecutorService downloadExecutor = Executors.newFixedThreadPool(10); // 10 concurrent downloads
 
+
+    // Constructor for the ImageDownloaderApp class
     public ImageDownloaderApp() {
+        // Set dark theme
         super(" Image Downloader");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1200, 400);
@@ -26,6 +31,7 @@ public class ImageDownloaderApp extends JFrame {
         setLocationRelativeTo(null); // Center the JFrame on the screen
     }
 
+    // Method to layout GUI components
     private void layoutComponents() {
         // Set dark theme
         try {
@@ -54,6 +60,8 @@ public class ImageDownloaderApp extends JFrame {
     titleLabel.setForeground(blackColor);
     titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
+
+        // Create and set properties for various GUI components
         JPanel addPanel = new JPanel();
         addPanel.setBackground(redColor);
         addPanel.setLayout(new BorderLayout());
@@ -118,7 +126,7 @@ public class ImageDownloaderApp extends JFrame {
                 }
             }
         });
-
+// Set layout and add components to the JFrame
         setLayout(new BorderLayout());
         
 
@@ -129,6 +137,7 @@ public class ImageDownloaderApp extends JFrame {
         
     }
 
+    // Method to add a download to the list
     private void addDownload(String url) {
         try {
             new URL(url);
@@ -145,7 +154,7 @@ public class ImageDownloaderApp extends JFrame {
         SwingUtilities.invokeLater(ImageDownloaderApp::new);
     }
 }
-
+// Class to represent information about a download
 class DownloadInfo {
     private final String url;
     private volatile String status = "Waiting..."; // Corrected the typo here
@@ -154,57 +163,75 @@ class DownloadInfo {
     private Future<?> future;
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
+    // Constructor
     public DownloadInfo(String url) {
         this.url = url;
     }
 
+    // Getter for URL
     public String getUrl() {
         return url;
     }
 
+
+    // Synchronized method to check if the download is
     public synchronized boolean isPaused() {
         return paused.get();
     }
 
+    // Synchronized method to toggle pause/resume
     public synchronized void togglePauseResume() {
         paused.set(!paused.get());
         notifyAll();
     }
-
+    // Getter for download status
     public String getStatus() {
         return status;
     }
 
+
+    // Synchronized method to set download status
     public synchronized void setStatus(String status) {
         this.status = status;
     }
 
+
+    // Method to set the future for the download
     public void setFuture(Future<?> future) {
         this.future = future;
     }
 
+
+
+    // Method to cancel the download
     public void cancel() {
         if (future != null)
             future.cancel(true);
     }
 
+    // Synchronized method to set total bytes
     public synchronized void setTotalBytes(long totalBytes) {
         this.totalBytes = totalBytes;
     }
 
+    // Synchronized method to add downloaded bytes
     public synchronized void addDownloadedBytes(long bytes) {
         this.downloadedBytes += bytes;
     }
 
+
+    // Getter for downloaded bytes
     public long getDownloadedBytes() {
         return downloadedBytes;
     }
 
+    // Getter for total bytes
     public long getTotalBytes() {
         return totalBytes;
     }
 }
 
+// Class representing a download task
 class Download implements Callable<Void> {
     private final DownloadInfo info;
     private final Runnable updateUI;
@@ -214,10 +241,17 @@ class Download implements Callable<Void> {
         this.updateUI = updateUI;
     }
 
+
+
+
+    // Call method to execute the download task
     @Override
+
     public Void call() throws Exception {
+        // Set download status
         info.setStatus("Downloading");
         @SuppressWarnings("deprecation")
+        // Create URL connection
         URL url = new URL(info.getUrl());
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         long fileSize = connection.getContentLengthLong();
